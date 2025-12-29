@@ -9,6 +9,7 @@ function OwnerLanding() {
   const [currentStage, setCurrentStage] = useState(1);
   const [images, setImages] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [isFormAnimating, setIsFormAnimating] = useState(false);
   const [verificationData, setVerificationData] = useState({
     ownerName: user?.name || '',
     phoneNumber: ''
@@ -81,13 +82,59 @@ function OwnerLanding() {
     );
   }
 
+  const toggleForm = () => {
+    if (showVerificationForm) {
+      setIsFormAnimating(true);
+      setTimeout(() => {
+        setShowVerificationForm(false);
+        setIsFormAnimating(false);
+      }, 300);
+    } else {
+      setShowVerificationForm(true);
+      setTimeout(() => {
+        setIsFormAnimating(false);
+      }, 50);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 relative">
+    <div className="min-h-screen bg-white relative">
+      <style jsx>{`
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes slideUp {
+          from {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          to {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+        }
+        
+        .form-enter {
+          animation: slideDown 0.3s ease-out forwards;
+        }
+        
+        .form-exit {
+          animation: slideUp 0.3s ease-out forwards;
+        }
+      `}</style>
       {/* Back Button */}
       <div className="absolute top-4 left-4 z-20">
         <button
           onClick={() => navigate("/landing")}
-          className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-800 transition-all duration-200 hover:scale-105"
+          className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-900 transition-all duration-200 hover:scale-105"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -97,20 +144,20 @@ function OwnerLanding() {
       </div>
       
       {/* Hero Section */}
-      <div className="bg-white border-b">
+      <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 py-16">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8">
               Welcome, {user?.name || 'Property Owner'}!
             </h1>
-            <p className="text-xl text-gray-600 mb-8">
-              List your property and find the perfect tenants
+            <p className="text-xl font-bold text-black mb-8">
+              Fill out the form and list your property in no time. Safe, secured and genuine!
             </p>
             
             {/* Quick Actions */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <button 
-                onClick={() => setShowVerificationForm(!showVerificationForm)}
+                onClick={toggleForm}
                 className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
               >
                 {showVerificationForm ? 'Hide Form' : 'List Your Property'}
@@ -122,8 +169,10 @@ function OwnerLanding() {
 
       {/* Stage 1: Verification Form */}
       {showVerificationForm && currentStage === 1 && (
-        <div className="max-w-2xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className={`max-w-2xl mx-auto px-4 py-8 ${
+          isFormAnimating ? (showVerificationForm ? 'form-exit' : 'form-enter') : 'form-enter'
+        }`}>
+          <div className="bg-white rounded-lg shadow-lg p-8 border-2 border-green-500">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 1: Owner Verification</h2>
             <p className="text-gray-600 mb-6">Please verify your details to proceed with property listing</p>
             
@@ -176,8 +225,10 @@ function OwnerLanding() {
 
       {/* Stage 2: Property Details Form */}
       {showVerificationForm && currentStage === 2 && (
-        <div className="max-w-2xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className={`max-w-2xl mx-auto px-4 py-8 ${
+          isFormAnimating ? (showVerificationForm ? 'form-exit' : 'form-enter') : 'form-enter'
+        }`}>
+          <div className="bg-white rounded-lg shadow-lg p-8 border-2 border-green-500">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 2: Property Details</h2>
             <p className="text-gray-600 mb-6">Tell us about your property</p>
             
@@ -331,8 +382,10 @@ function OwnerLanding() {
 
       {/* Stage 3: Pricing Details Form */}
       {showVerificationForm && currentStage === 3 && (
-        <div className="max-w-2xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className={`max-w-2xl mx-auto px-4 py-8 ${
+          isFormAnimating ? (showVerificationForm ? 'form-exit' : 'form-enter') : 'form-enter'
+        }`}>
+          <div className="bg-white rounded-lg shadow-lg p-8 border-2 border-green-500">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 3: Pricing Details</h2>
             <p className="text-gray-600 mb-6">Set your pricing and charges with absolute clarity</p>
             
@@ -438,8 +491,10 @@ function OwnerLanding() {
 
       {/* Stage 4: Amenities */}
       {showVerificationForm && currentStage === 4 && (
-        <div className="max-w-2xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className={`max-w-2xl mx-auto px-4 py-8 ${
+          isFormAnimating ? (showVerificationForm ? 'form-exit' : 'form-enter') : 'form-enter'
+        }`}>
+          <div className="bg-white rounded-lg shadow-lg p-8 border-2 border-green-500">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 4: Amenities</h2>
             <p className="text-gray-600 mb-6">Select all the amenities available with your property</p>
             
@@ -493,8 +548,10 @@ function OwnerLanding() {
 
       {/* Stage 5: Rules & Preferences */}
       {showVerificationForm && currentStage === 5 && (
-        <div className="max-w-2xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className={`max-w-2xl mx-auto px-4 py-8 ${
+          isFormAnimating ? (showVerificationForm ? 'form-exit' : 'form-enter') : 'form-enter'
+        }`}>
+          <div className="bg-white rounded-lg shadow-lg p-8 border-2 border-green-500">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 5: Rules & Preferences</h2>
             <p className="text-gray-600 mb-6">Set house rules and preferences for your property</p>
             
@@ -523,7 +580,7 @@ function OwnerLanding() {
                   </button>
                 </div>
               ))}
-
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Curfew / Time Restrictions (Optional)
@@ -562,8 +619,10 @@ function OwnerLanding() {
       
       {/* Stage 6: Image Upload */}
       {showVerificationForm && currentStage === 6 && (
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className={`max-w-4xl mx-auto px-4 py-8 ${
+          isFormAnimating ? (showVerificationForm ? 'form-exit' : 'form-enter') : 'form-enter'
+        }`}>
+          <div className="bg-white rounded-lg shadow-lg p-8 border-2 border-green-500">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 6: Upload Property Images</h2>
             <p className="text-gray-600 mb-6">Upload up to 10 high-quality images of your property</p>
             
