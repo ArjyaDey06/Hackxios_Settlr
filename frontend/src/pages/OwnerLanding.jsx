@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 function OwnerLanding() {
   const navigate = useNavigate();
@@ -97,44 +98,79 @@ function OwnerLanding() {
     }
   };
 
+  // Selection card data
+  const propertyTypes = [
+    { id: 'pg', label: 'PG', icon: '🏢' },
+    { id: 'shared-flat', label: 'Shared Flat', icon: '👥' },
+    { id: 'rented-apartment', label: 'Rented Apartment', icon: '🏠' }
+  ];
+
+  const bhkTypes = [
+    { id: '1rk', label: '1RK', icon: '🚪' },
+    { id: '1bhk', label: '1BHK', icon: '🏠' },
+    { id: '2bhk', label: '2BHK', icon: '🏘️' },
+    { id: 'shared', label: 'Shared', icon: '👥' },
+    { id: 'single', label: 'Single', icon: '🚪' }
+  ];
+
+  const furnishingTypes = [
+    { id: 'fully', label: 'Fully Furnished', icon: '🛋️' },
+    { id: 'semi', label: 'Semi Furnished', icon: '🪑' },
+    { id: 'unfurnished', label: 'Unfurnished', icon: '🏗️' }
+  ];
+
+  const SelectionCard = ({ option, selected, onClick, icon }) => (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className={`relative p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+        selected 
+          ? 'bg-emerald-50 border-emerald-500' 
+          : 'bg-white border-gray-200 hover:border-gray-300'
+      }`}
+    >
+      {selected && (
+        <div className="absolute top-2 right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      )}
+      <div className="text-center">
+        <div className="text-2xl mb-2">{icon}</div>
+        <div className="text-sm font-medium text-gray-700">{option.label}</div>
+      </div>
+    </motion.div>
+  );
+
   return (
     <div className="min-h-screen bg-white relative">
-      <style jsx>{`
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes slideUp {
-          from {
-            opacity: 1;
-            transform: translateY(0);
-          }
-          to {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-        }
-        
-        .form-enter {
-          animation: slideDown 0.3s ease-out forwards;
-        }
-        
-        .form-exit {
-          animation: slideUp 0.3s ease-out forwards;
-        }
-      `}</style>
+      {/* Progress Bar */}
+      {showVerificationForm && (
+        <div className="fixed top-16 left-0 right-0 z-40 bg-white border-b border-gray-100">
+          <div className="max-w-4xl mx-auto px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-600">Progress</span>
+              <span className="text-sm font-medium text-emerald-600">{currentStage}/6</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <motion.div 
+                className="bg-emerald-500 h-2 rounded-full"
+                initial={{ width: `${((currentStage - 1) / 6) * 100}%` }}
+                animate={{ width: `${(currentStage / 6) * 100}%` }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Back Button */}
       <div className="absolute top-4 left-4 z-20">
         <button
           onClick={() => navigate("/landing")}
-          className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-900 transition-all duration-200 hover:scale-105"
+          className="flex items-center gap-2 bg-white text-gray-700 px-4 py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 hover:scale-105"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -246,18 +282,18 @@ function OwnerLanding() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Property Type *</label>
-                <select
-                  value={propertyData.propertyType}
-                  onChange={(e) => setPropertyData({...propertyData, propertyType: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">Select Property Type</option>
-                  <option value="pg">PG</option>
-                  <option value="shared-flat">Shared Flat</option>
-                  <option value="rented-apartment">Rented Apartment</option>
-                </select>
-                <p className="text-sm text-gray-500 mt-1">Choose the type of property you're listing</p>
+                <label className="block text-sm font-medium text-gray-700 mb-4">Property Type *</label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {propertyTypes.map((type) => (
+                    <SelectionCard
+                      key={type.id}
+                      option={type}
+                      selected={propertyData.propertyType === type.id}
+                      onClick={() => setPropertyData({...propertyData, propertyType: type.id})}
+                      icon={type.icon}
+                    />
+                  ))}
+                </div>
               </div>
               
               <div>
@@ -285,35 +321,33 @@ function OwnerLanding() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">BHK / Room Type *</label>
-                <select
-                  value={propertyData.bhkType}
-                  onChange={(e) => setPropertyData({...propertyData, bhkType: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">Select BHK/Room Type</option>
-                  <option value="1rk">1RK</option>
-                  <option value="1bhk">1BHK</option>
-                  <option value="2bhk">2BHK</option>
-                  <option value="shared">Shared</option>
-                  <option value="single">Single</option>
-                </select>
-                <p className="text-sm text-gray-500 mt-1">Type of accommodation available</p>
+                <label className="block text-sm font-medium text-gray-700 mb-4">BHK / Room Type *</label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {bhkTypes.map((type) => (
+                    <SelectionCard
+                      key={type.id}
+                      option={type}
+                      selected={propertyData.bhkType === type.id}
+                      onClick={() => setPropertyData({...propertyData, bhkType: type.id})}
+                      icon={type.icon}
+                    />
+                  ))}
+                </div>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Furnishing *</label>
-                <select
-                  value={propertyData.furnishing}
-                  onChange={(e) => setPropertyData({...propertyData, furnishing: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">Select Furnishing</option>
-                  <option value="fully">Fully Furnished</option>
-                  <option value="semi">Semi Furnished</option>
-                  <option value="unfurnished">Unfurnished</option>
-                </select>
-                <p className="text-sm text-gray-500 mt-1">Furnishing status of the property</p>
+                <label className="block text-sm font-medium text-gray-700 mb-4">Furnishing *</label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {furnishingTypes.map((type) => (
+                    <SelectionCard
+                      key={type.id}
+                      option={type}
+                      selected={propertyData.furnishing === type.id}
+                      onClick={() => setPropertyData({...propertyData, furnishing: type.id})}
+                      icon={type.icon}
+                    />
+                  ))}
+                </div>
               </div>
               
               <div>

@@ -42,24 +42,30 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-transparent via-[#26f50c]/20 to-transparent rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-l from-transparent via-white/10 to-transparent rounded-full blur-3xl transform translate-x-1/2 translate-y-1/2"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-br from-[#26f50c]/10 via-transparent to-white/5 rounded-full blur-2xl transform -translate-x-1/2 -translate-y-1/2"></div>
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Back Button */}
+      <div className="p-4">
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2 text-gray-600 hover:text-[#4ade80] transition-all duration-200 group"
+        >
+          <svg className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          <span className="text-sm font-medium">Back</span>
+        </button>
       </div>
       
-      <div className="relative z-10 flex-grow flex items-center justify-center px-4 pb-8">
+      <div className="flex-grow flex items-center justify-center px-4 pb-8">
         <div className="w-full max-w-md">
           {/* Logo/Brand */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-[#26f50c] mb-2">Settlr</h1>
-            <p className="text-gray-300">Join our rental community today</p>
+            <h1 className="text-4xl font-bold text-[#4ade80] mb-2">Settlr</h1>
+            <p className="text-gray-600">Join our rental community today</p>
           </div>
 
           {/* Register Card */}
-          <div className="bg-black/80 backdrop-blur-xl border border-green-200 rounded-2xl shadow-2xl p-6">
+          <div className="bg-black border-2 border-[#4ade80] rounded-2xl shadow-2xl p-6">
             
             {/* Title */}
             <h2 className="text-2xl font-bold text-white text-center mb-6">
@@ -70,7 +76,7 @@ function Register() {
             <button
               onClick={handleGoogleRegister}
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-3 bg-white text-black border border-green-300 py-3 rounded-xl hover:bg-green-50 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+              className="w-full flex items-center justify-center gap-3 bg-white text-black border-2 border-[#4ade80] py-3 rounded-xl hover:bg-[#4ade80] hover:text-white transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed mb-4"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
@@ -86,15 +92,15 @@ function Register() {
 
             {/* Divider */}
             <div className="flex items-center my-4">
-              <div className="flex-1 h-px bg-green-200" />
-              <span className="px-3 text-sm text-gray-500">OR</span>
-              <div className="flex-1 h-px bg-green-200" />
+              <div className="flex-1 h-px bg-[#4ade80]/30" />
+              <span className="px-3 text-sm text-gray-400">OR</span>
+              <div className="flex-1 h-px bg-[#4ade80]/30" />
             </div>
 
             {/* Email Register */}
             <form onSubmit={handleEmailRegister} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Full Name
                 </label>
                 <input
@@ -102,13 +108,13 @@ function Register() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="John Doe"
-                  className="w-full px-4 py-2 bg-white/50 border border-green-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#26f50c] focus:border-transparent transition"
+                  className="w-full px-4 py-2 bg-white/10 border border-[#4ade80]/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent transition"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Email Address
                 </label>
                 <input
@@ -116,13 +122,13 @@ function Register() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-2 bg-white/50 border border-green-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#26f50c] focus:border-transparent transition"
+                  className="w-full px-4 py-2 bg-white/10 border border-[#4ade80]/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent transition"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Password
                 </label>
                 <input
@@ -130,22 +136,22 @@ function Register() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2 bg-white/50 border border-green-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#26f50c] focus:border-transparent transition"
+                  className="w-full px-4 py-2 bg-white/10 border border-[#4ade80]/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4ade80] focus:border-transparent transition"
                   required
                 />
               </div>
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center">
-                  <input type="checkbox" className="w-4 h-4 bg-white border-green-300 rounded focus:ring-[#26f50c]" />
-                  <span className="ml-2 text-sm text-gray-600">I agree to terms</span>
+                  <input type="checkbox" className="w-4 h-4 bg-white border-[#4ade80]/50 rounded focus:ring-[#4ade80]" />
+                  <span className="ml-2 text-sm text-gray-400">I agree to terms</span>
                 </label>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#26f50c] text-black py-3 rounded-xl hover:bg-[#26f50c]/90 transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#4ade80] text-black py-3 rounded-xl hover:bg-[#4ade80]/90 transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
@@ -159,9 +165,9 @@ function Register() {
             </form>
 
             {/* Footer */}
-            <p className="text-sm text-center text-gray-600 mt-6">
+            <p className="text-sm text-center text-gray-400 mt-6">
               Already have an account?{" "}
-              <span className="text-[#26f50c] font-medium cursor-pointer" onClick={() => navigate("/login")}>
+              <span className="text-[#4ade80] font-medium cursor-pointer" onClick={() => navigate("/login")}>
                 Login
               </span>
             </p>

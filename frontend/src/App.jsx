@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
@@ -8,11 +9,13 @@ import Landing from "./pages/Landing";
 import TenantLanding from "./pages/TenantLanding";
 import OwnerLanding from "./pages/OwnerLanding";
 
-
-function App() {
+function AppWithNavbar() {
+  const location = useLocation();
+  const noNavbarRoutes = ['/login', '/register'];
+  
   return (
-    <BrowserRouter>
-      <Navbar />
+    <>
+      {!noNavbarRoutes.includes(location.pathname) && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -22,6 +25,14 @@ function App() {
         <Route path="/owner" element={<OwnerLanding />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppWithNavbar />
     </BrowserRouter>
   );
 }

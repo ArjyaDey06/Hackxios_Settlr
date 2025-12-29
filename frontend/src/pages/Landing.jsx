@@ -2,6 +2,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import SplitText from "../components/SplitText";
 import Footer from "../components/Footer";
+import PropertyCard from "../components/PropertyCard";
 import AnimatedCard from "../components/AnimatedCard";
 import { useRef, useEffect } from "react";
 
@@ -31,6 +32,36 @@ function Landing() {
       });
     }
   }, [loading]);
+
+  const featuredProperties = [
+    {
+      id: 1,
+      title: "Modern 2BHK in Koramangala",
+      price: 18000,
+      location: "Indiranagar, Bangalore",
+      image:
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1600&q=80",
+      trustScore: 92,
+    },
+    {
+      id: 2,
+      title: "Cozy 1BHK near MG Road",
+      price: 12000,
+      location: "HSR Layout, Bangalore",
+      image:
+        "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80",
+      trustScore: 88,
+    },
+    {
+      id: 3,
+      title: "Luxury 3BHK with City View",
+      price: 25000,
+      location: "Whitefield, Bangalore",
+      image:
+        "https://images.unsplash.com/photo-15129177724-750e9803-bf80f42370?auto=format&fit=crop&w=1600&q=80",
+      trustScore: 95,
+    },
+  ];
 
   if (loading) {
     return (
@@ -120,6 +151,26 @@ function Landing() {
           </div>
         </div>
       </div>
+
+      {/* Featured Stays Section */}
+      <div className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">Featured Stays</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredProperties.map((property) => (
+              <PropertyCard
+                key={property.id}
+                title={property.title}
+                price={property.price}
+                location={property.location}
+                image={property.image}
+                trustScore={property.trustScore}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
       <Footer />
     </div>
   );

@@ -122,24 +122,24 @@ function TenantLanding() {
             </h1>
 
             <div className="w-full animate-fade-in-up-delay-2">
-              <div className="relative bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-gray-800 shadow-2xl overflow-hidden">
+              <div className="relative bg-white rounded-2xl border border-emerald-200 shadow-2xl overflow-hidden">
                 {/* Chat Header */}
-                <div className="bg-gradient-to-r from-[#26f50c]/10 to-transparent px-6 py-4 border-b border-gray-800">
+                <div className="bg-white/80 backdrop-blur-sm px-6 py-4 border-b border-emerald-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-[#26f50c] rounded-full animate-pulse"></div>
-                    <h2 className="text-white font-semibold">Settlr AI Assistant</h2>
-                    <span className="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded-full">Online</span>
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <h2 className="text-gray-900 font-semibold">Settlr AI Assistant</h2>
+                    <span className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full">Online</span>
                   </div>
                 </div>
 
                 {/* Messages Area */}
-                <div className="overflow-y-auto max-h-96 p-6 space-y-4 bg-gradient-to-b from-gray-900/50 to-black/50">
+                <div className="overflow-y-auto max-h-96 p-6 space-y-4 bg-white">
                   {messages.map((message) => (
                     <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
                       <div className={`max-w-lg ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
                         <div className={`px-4 py-3 rounded-2xl shadow-lg ${
                           message.type === 'user' 
-                            ? 'bg-gradient-to-r from-[#26f50c] to-[#26f50c]/90 text-black rounded-br-none font-medium' 
+                            ? 'bg-gradient-to-r from-emerald-500 to-emerald-500/90 text-white rounded-br-none font-medium' 
                             : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-900 rounded-bl-none border border-gray-300'
                         }`}>
                           <p className="text-sm leading-relaxed">{message.text}</p>
@@ -155,9 +155,9 @@ function TenantLanding() {
                     <div className="flex justify-start animate-fade-in">
                       <div className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-900 rounded-2xl rounded-bl-none border border-gray-300 px-4 py-3 shadow-lg">
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-[#26f50c] rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-[#26f50c] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-[#26f50c] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                         </div>
                       </div>
                     </div>
@@ -165,13 +165,13 @@ function TenantLanding() {
                 </div>
 
                 {/* Input Area */}
-                <div className="p-4 bg-gradient-to-r from-gray-900 to-black border-t border-gray-800">
+                <div className="p-4 bg-white border-t border-emerald-100">
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      className="p-3 hover:bg-gray-800 rounded-xl transition-all duration-200 hover:scale-105 group"
+                      className="p-3 hover:bg-gray-100 rounded-xl transition-all duration-200 hover:scale-105 group"
                     >
-                      <svg className="w-5 h-5 text-gray-400 group-hover:text-[#26f50c] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-gray-500 group-hover:text-emerald-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                       </svg>
                     </button>
@@ -183,7 +183,7 @@ function TenantLanding() {
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Ask me anything about rentals..."
-                        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#26f50c] focus:ring-2 focus:ring-[#26f50c]/20 transition-all duration-200"
+                        className="w-full px-4 py-3 bg-white border border-emerald-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 transition-all duration-200"
                       />
                     </div>
                     
@@ -191,8 +191,8 @@ function TenantLanding() {
                       type="button"
                       className={`px-4 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 ${
                         inputValue.trim() 
-                          ? "bg-gradient-to-r from-[#26f50c] to-[#26f50c]/90 text-black shadow-lg hover:shadow-xl" 
-                          : "bg-gray-800 text-gray-400 cursor-not-allowed"
+                          ? "bg-emerald-500 text-white shadow-lg hover:shadow-xl hover:bg-emerald-600" 
+                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
                       }`}
                       onClick={() => handleSendMessage(inputValue)}
                       disabled={!inputValue.trim()}
@@ -209,7 +209,7 @@ function TenantLanding() {
                       <button
                         key={index}
                         onClick={() => handleSendMessage(suggestion)}
-                        className="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded-full border border-gray-700 hover:border-[#26f50c]/50 transition-all duration-200 hover:scale-105"
+                        className="px-3 py-1 bg-white hover:bg-emerald-50 text-gray-600 text-xs rounded-full border border-emerald-200 hover:border-emerald-300 transition-all duration-200 hover:scale-105"
                       >
                         {suggestion.length > 40 ? suggestion.substring(0, 40) + '...' : suggestion}
                       </button>

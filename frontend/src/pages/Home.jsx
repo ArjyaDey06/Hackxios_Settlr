@@ -124,9 +124,6 @@ function Home() {
                       <p className="text-gray-300 text-sm mt-1">
                         {property.price} / month • {property.features}
                       </p>
-                      <button className="mt-4 w-full bg-[#26f50c] text-black py-2 rounded-lg font-semibold hover:bg-[#26f50c]/90 transition">
-                        View Details
-                      </button>
                     </div>
                   </div>
                 ))}
