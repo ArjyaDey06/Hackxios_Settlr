@@ -1,40 +1,49 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { motion, AnimatePresence } from "framer-motion";
+import { auth } from "../firebase/firebase"; // ✅ Adjust path to your firebase config
+import { motion } from "framer-motion";
 
 function OwnerLanding() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+
+  const LOCATIONIQ_KEY = import.meta.env.VITE_LOCATIONIQ_KEY;
+
   const [showVerificationForm, setShowVerificationForm] = useState(false);
   const [currentStage, setCurrentStage] = useState(1);
   const [images, setImages] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [isFormAnimating, setIsFormAnimating] = useState(false);
+
   const [verificationData, setVerificationData] = useState({
-    ownerName: user?.name || '',
-    phoneNumber: ''
+    ownerName: user?.name || "",
+    phoneNumber: "",
   });
+
   const [propertyData, setPropertyData] = useState({
-    propertyTitle: '',
-    propertyType: '',
-    city: '',
-    address: '',
-    bhkType: '',
-    furnishing: '',
-    availableFrom: '',
-    preferredTenant: '',
-    preferredGender: ''
+    propertyTitle: "",
+    propertyType: "",
+    city: "",
+    address: "",
+    bhkType: "",
+    furnishing: "",
+    availableFrom: "",
+    preferredTenant: "",
+    preferredGender: "",
   });
+
   const [pricingData, setPricingData] = useState({
-    monthlyRent: '',
-    securityDeposit: '',
-    maintenanceCharges: 'included',
-    maintenanceAmount: '',
-    electricity: 'included',
-    electricityAmount: '',
-    waterCharges: 'included'
+    monthlyRent: "",
+    securityDeposit: "",
+    maintenanceCharges: "included",
+    maintenanceAmount: "",
+    electricity: "included",
+    electricityAmount: "",
+    waterCharges: "included",
   });
+
   const [amenities, setAmenities] = useState({
     wifi: false,
     powerBackup: false,
@@ -45,43 +54,144 @@ function OwnerLanding() {
     ac: false,
     geyser: false,
     housekeeping: false,
-    security: false
+    security: false,
   });
+
   const [rules, setRules] = useState({
     smokingAllowed: false,
     alcoholAllowed: false,
     petsAllowed: false,
     visitorRestrictions: false,
-    curfewRestrictions: ''
+    curfewRestrictions: "",
   });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  // LocationIQ Autocomplete state
+  const [cityQuery, setCityQuery] = useState("");
+  const [citySuggestions, setCitySuggestions] = useState([]);
+  const [cityLoading, setCityLoading] = useState(false);
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Please Login First</h1>
-          <p className="text-gray-600 mb-6">You need to be logged in to access the owner dashboard</p>
-          <button 
-            onClick={() => navigate('/login')}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-          >
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const [addressQuery, setAddressQuery] = useState("");
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [showAddressDropdown, setShowAddressDropdown] = useState(false);
+
+  const cityAbortRef = useRef(null);
+  const addressAbortRef = useRef(null);
+
+  const canUseLocationIQ = useMemo(() => {
+    return Boolean(LOCATIONIQ_KEY && String(LOCATIONIQ_KEY).trim().length > 0);
+  }, [LOCATIONIQ_KEY]);
+
+  // Debounced city autocomplete
+  useEffect(() => {
+    if (!showVerificationForm || currentStage !== 2) return;
+
+    const q = cityQuery.trim();
+    if (!canUseLocationIQ || q.length < 2) {
+      setCitySuggestions([]);
+      setCityLoading(false);
+      return;
+    }
+
+    setCityLoading(true);
+
+    if (cityAbortRef.current) cityAbortRef.current.abort();
+    const controller = new AbortController();
+    cityAbortRef.current = controller;
+
+    const t = setTimeout(async () => {
+      try {
+        const url = new URL("https://api.locationiq.com/v1/autocomplete");
+        url.searchParams.set("key", LOCATIONIQ_KEY);
+        url.searchParams.set("q", q);
+        url.searchParams.set("format", "json");
+        url.searchParams.set("limit", "6");
+        url.searchParams.set("countrycodes", "in");
+        url.searchParams.set("normalizecity", "1");
+        url.searchParams.set("tag", "place:city");
+
+        const res = await fetch(url.toString(), { signal: controller.signal });
+        const data = res.ok ? await res.json() : [];
+        setCitySuggestions(Array.isArray(data) ? data : []);
+      } catch (e) {
+        if (e?.name !== "AbortError") setCitySuggestions([]);
+      } finally {
+        setCityLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(t);
+  }, [cityQuery, canUseLocationIQ, LOCATIONIQ_KEY, showVerificationForm, currentStage]);
+
+  // Debounced address autocomplete
+  useEffect(() => {
+    if (!showVerificationForm || currentStage !== 2) return;
+
+    const q = addressQuery.trim();
+    if (!canUseLocationIQ || q.length < 2) {
+      setAddressSuggestions([]);
+      setAddressLoading(false);
+      return;
+    }
+
+    setAddressLoading(true);
+
+    if (addressAbortRef.current) addressAbortRef.current.abort();
+    const controller = new AbortController();
+    addressAbortRef.current = controller;
+
+    const t = setTimeout(async () => {
+      try {
+        const url = new URL("https://api.locationiq.com/v1/autocomplete");
+        url.searchParams.set("key", LOCATIONIQ_KEY);
+        url.searchParams.set("q", q);
+        url.searchParams.set("format", "json");
+        url.searchParams.set("limit", "6");
+        url.searchParams.set("countrycodes", "in");
+        url.searchParams.set("normalizecity", "1");
+
+        const res = await fetch(url.toString(), { signal: controller.signal });
+        const data = res.ok ? await res.json() : [];
+        setAddressSuggestions(Array.isArray(data) ? data : []);
+      } catch (e) {
+        if (e?.name !== "AbortError") setAddressSuggestions([]);
+      } finally {
+        setAddressLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(t);
+  }, [addressQuery, canUseLocationIQ, LOCATIONIQ_KEY, showVerificationForm, currentStage]);
+
+  const pickCity = (place) => {
+    const name =
+      place?.address?.city ||
+      place?.address?.town ||
+      place?.address?.village ||
+      (place?.display_name ? String(place.display_name).split(",")[0].trim() : "");
+
+    setPropertyData((prev) => ({ ...prev, city: name }));
+    setCityQuery("");
+    setCitySuggestions([]);
+    setShowCityDropdown(false);
+  };
+
+  const pickAddress = (place) => {
+    const full = place?.display_name ? String(place.display_name) : "";
+    const inferredCity =
+      place?.address?.city || place?.address?.town || place?.address?.village || "";
+
+    setPropertyData((prev) => ({
+      ...prev,
+      address: full,
+      city: inferredCity || prev.city,
+    }));
+
+    setAddressQuery("");
+    setAddressSuggestions([]);
+    setShowAddressDropdown(false);
+  };
 
   const toggleForm = () => {
     if (showVerificationForm) {
@@ -100,9 +210,9 @@ function OwnerLanding() {
 
   // Selection card data
   const propertyTypes = [
-    { id: 'pg', label: 'PG', icon: '🏢' },
-    { id: 'shared-flat', label: 'Shared Flat', icon: '👥' },
-    { id: 'rented-apartment', label: 'Rented Apartment', icon: '🏠' }
+    { id: 'PG', label: 'PG', icon: '🏢' },
+    { id: 'Shared Flat', label: 'Shared Flat', icon: '👥' },
+    { id: 'Rented Apartment', label: 'Rented Apartment', icon: '🏠' }
   ];
 
   const bhkTypes = [
@@ -143,6 +253,34 @@ function OwnerLanding() {
       </div>
     </motion.div>
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Please Login First</h1>
+          <p className="text-gray-600 mb-6">You need to be logged in to access the owner dashboard</p>
+          <button
+            onClick={() => navigate("/login")}
+            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white relative">
@@ -199,6 +337,12 @@ function OwnerLanding() {
                 {showVerificationForm ? 'Hide Form' : 'List Your Property'}
               </button>
             </div>
+
+            {!canUseLocationIQ && (
+              <p className="text-sm text-amber-700">
+                LocationIQ autocomplete is disabled (missing VITE_LOCATIONIQ_KEY).
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -240,10 +384,7 @@ function OwnerLanding() {
               <div className="flex gap-4">
                 <button 
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  onClick={() => {
-                    console.log('Verification data:', verificationData);
-                    setCurrentStage(2);
-                  }}
+                  onClick={() => setCurrentStage(2)}
                 >
                   Verify & Continue
                 </button>
@@ -296,27 +437,86 @@ function OwnerLanding() {
                 </div>
               </div>
               
-              <div>
+              {/* City autocomplete */}
+              <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">City *</label>
                 <input
                   type="text"
                   value={propertyData.city}
-                  onChange={(e) => setPropertyData({...propertyData, city: e.target.value})}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setPropertyData({ ...propertyData, city: v });
+                    setCityQuery(v);
+                    setShowCityDropdown(true);
+                  }}
+                  onFocus={() => setShowCityDropdown(true)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Enter city name"
+                  placeholder="Start typing city name"
                 />
+                {canUseLocationIQ && cityLoading && (
+                  <p className="text-xs text-gray-500 mt-1">Searching…</p>
+                )}
+
+                {canUseLocationIQ && showCityDropdown && citySuggestions.length > 0 && (
+                  <div className="mt-2 border border-gray-200 bg-white rounded-lg max-h-56 overflow-auto shadow-lg absolute z-10 w-full">
+                    {citySuggestions.map((place) => (
+                      <button
+                        type="button"
+                        key={place.place_id || place.osm_id || place.display_name}
+                        onClick={() => pickCity(place)}
+                        className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="text-sm font-medium">
+                          {place.address?.city ||
+                            place.address?.town ||
+                            place.address?.village ||
+                            String(place.display_name || "").split(",")[0]}
+                        </div>
+                        <div className="text-xs text-gray-500 truncate">{place.display_name}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <p className="text-sm text-gray-500 mt-1">City where your property is located</p>
               </div>
               
-              <div>
+              {/* Address autocomplete */}
+              <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Address *</label>
-                <textarea
+                <input
+                  type="text"
                   value={propertyData.address}
-                  onChange={(e) => setPropertyData({...propertyData, address: e.target.value})}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setPropertyData({ ...propertyData, address: v });
+                    setAddressQuery(v);
+                    setShowAddressDropdown(true);
+                  }}
+                  onFocus={() => setShowAddressDropdown(true)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  rows="3"
-                  placeholder="Complete address including area, landmark, etc."
+                  placeholder="Start typing address"
                 />
+                {canUseLocationIQ && addressLoading && (
+                  <p className="text-xs text-gray-500 mt-1">Searching…</p>
+                )}
+
+                {canUseLocationIQ && showAddressDropdown && addressSuggestions.length > 0 && (
+                  <div className="mt-2 border border-gray-200 bg-white rounded-lg max-h-60 overflow-auto shadow-lg absolute z-10 w-full">
+                    {addressSuggestions.map((place) => (
+                      <button
+                        type="button"
+                        key={place.place_id || place.osm_id || place.display_name}
+                        onClick={() => pickAddress(place)}
+                        className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="text-sm font-medium truncate">{place.display_name}</div>
+                        <div className="text-xs text-gray-500">
+                          {place.address?.city || place.address?.town || place.address?.village || ""}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <p className="text-sm text-gray-500 mt-1">Full address for tenants to locate your property</p>
               </div>
               
@@ -369,10 +569,10 @@ function OwnerLanding() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   <option value="">Select Preferred Tenant</option>
-                  <option value="student">Student</option>
-                  <option value="working-professional">Working Professional</option>
-                  <option value="family">Family</option>
-                  <option value="anyone">Anyone</option>
+                  <option value="Student">Student</option>
+                  <option value="Working Professional">Working Professional</option>
+                  <option value="Family">Family</option>
+                  <option value="Anyone">Anyone</option>
                 </select>
                 <p className="text-sm text-gray-500 mt-1">Who would you prefer as tenants?</p>
               </div>
@@ -385,9 +585,9 @@ function OwnerLanding() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   <option value="">No Preference</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="any">Any</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Any">Any</option>
                 </select>
                 <p className="text-sm text-gray-500 mt-1">Optional gender preference for tenants</p>
               </div>
@@ -395,10 +595,7 @@ function OwnerLanding() {
               <div className="flex gap-4">
                 <button 
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  onClick={() => {
-                    console.log('Property data:', propertyData);
-                    setCurrentStage(3);
-                  }}
+                  onClick={() => setCurrentStage(3)}
                 >
                   Continue to Next Stage
                 </button>
@@ -504,10 +701,7 @@ function OwnerLanding() {
               <div className="flex gap-4">
                 <button 
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  onClick={() => {
-                    console.log('Pricing data:', pricingData);
-                    setCurrentStage(4);
-                  }}
+                  onClick={() => setCurrentStage(4)}
                 >
                   Continue to Next Stage
                 </button>
@@ -561,10 +755,7 @@ function OwnerLanding() {
               <div className="flex gap-4 mt-8">
                 <button 
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  onClick={() => {
-                    console.log('Amenities:', amenities);
-                    setCurrentStage(5);
-                  }}
+                  onClick={() => setCurrentStage(5)}
                 >
                   Continue to Next Stage
                 </button>
@@ -632,10 +823,7 @@ function OwnerLanding() {
               <div className="flex gap-4 pt-4">
                 <button 
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  onClick={() => {
-                    console.log('Rules & Preferences:', rules);
-                    setCurrentStage(6);
-                  }}
+                  onClick={() => setCurrentStage(6)}
                 >
                   Next: Upload Images
                 </button>
@@ -772,25 +960,86 @@ function OwnerLanding() {
               <div className="flex gap-4 pt-4">
                 <button 
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-                  onClick={() => {
-                    console.log('Uploading images:', images);
-                    console.log('All form data:', { 
-                      verificationData, 
-                      propertyData, 
-                      pricingData, 
-                      amenities, 
-                      rules,
-                      images: images?.length || 0
-                    });
-                    alert('Property listing and images submitted successfully!');
+                  onClick={async () => {
+                    if (!user) {
+                      alert("Please login first");
+                      return;
+                    }
+
+                    if (!images?.length) {
+                      alert("Please upload at least one image");
+                      return;
+                    }
+
+                    setUploading(true);
+
+                    try {
+                      const token = await auth.currentUser.getIdToken();
+
+                      const payload = {
+                        title: propertyData.propertyTitle,
+                        propertyType: propertyData.propertyType,
+                        city: propertyData.city,
+                        address: propertyData.address,
+                        bhkType: propertyData.bhkType,
+                        furnishing: propertyData.furnishing,
+                        availableFrom: propertyData.availableFrom,
+                        preferredTenant: propertyData.preferredTenant,
+                        preferredGender: propertyData.preferredGender,
+                        pricing: {
+                          rent: Number(pricingData.monthlyRent),
+                          deposit: Number(pricingData.securityDeposit),
+                          maintenanceCharges: pricingData.maintenanceCharges,
+                          maintenanceAmount: Number(pricingData.maintenanceAmount || 0),
+                          electricity: pricingData.electricity,
+                          electricityAmount: Number(pricingData.electricityAmount || 0),
+                          waterCharges: pricingData.waterCharges,
+                        },
+                        amenities: Object.keys(amenities).filter((key) => amenities[key]),
+                        rules: rules,
+                        ownerPhone: verificationData.phoneNumber,
+                        images: [],
+                      };
+
+                      console.log("📤 Sending to backend:", payload);
+
+                      const response = await fetch("http://localhost:5000/api/properties", {
+                        method: "POST",
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(payload),
+                      });
+
+                      if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || "Failed to create property");
+                      }
+
+                      const data = await response.json();
+                      console.log("✅ Property saved to database:", data);
+
+                      alert("Property successfully saved to database!");
+
+                      setShowVerificationForm(false);
+                      setCurrentStage(1);
+                      setImages([]);
+                    } catch (error) {
+                      console.error("❌ Error saving property:", error);
+                      alert(`Failed to save property: ${error.message}`);
+                    } finally {
+                      setUploading(false);
+                    }
                   }}
-                  disabled={!images?.length}
+                  disabled={uploading || !images?.length}
                 >
-                  Submit Property Listing
+                  {uploading ? "Saving to Database..." : "Submit Property Listing"}
                 </button>
                 <button 
                   className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
                   onClick={() => setCurrentStage(5)}
+                  disabled={uploading}
                 >
                   Back
                 </button>
