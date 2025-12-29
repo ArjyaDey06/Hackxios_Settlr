@@ -80,7 +80,7 @@ function Home() {
       <div className="flex-grow flex items-center justify-center px-4">
       <div className="max-w-5xl w-full">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center mb-24 mt-8">
 
         <div className="text-center md:text-left">
           <h1 className="text-4xl sm:text-5xl font-bold leading-tight">
