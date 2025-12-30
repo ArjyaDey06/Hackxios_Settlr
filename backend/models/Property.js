@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const propertySchema = new mongoose.Schema(
   {
     ownerId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "User",
       required: true
     },

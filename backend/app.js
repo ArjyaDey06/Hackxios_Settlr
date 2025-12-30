@@ -3,9 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
-// Routes
+// ✅ Import routes ONCE - Remove the duplicate import on line 4
 import authRoutes from "./routes/auth.js";
-import propertyRoutes from "./routes/property.js";
+import propertyRoutes from "./routes/property.js";  // ✅ Only import once!
 import tenantRoutes from "./routes/tenant.js";
 
 dotenv.config();
@@ -15,10 +15,12 @@ const app = express();
 /* =====================
    Global Middleware
 ===================== */
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'], // Vite dev server
-  credentials: true
-}));
+app.use(
+    cors({
+        origin: "http://localhost:5173", // Vite frontend
+        credentials: true
+    })
+);
 
 app.use(express.json());
 
@@ -26,7 +28,7 @@ app.use(express.json());
    API Routes
 ===================== */
 app.use("/api/auth", authRoutes);
-app.use("/api/properties", propertyRoutes);
+app.use("/api/properties", propertyRoutes);  // ✅ This registers /api/properties/my-properties
 app.use("/api/tenant", tenantRoutes);
 
 /* =====================
@@ -51,4 +53,5 @@ mongoose
     })
     .catch((error) => {
         console.error("❌ MongoDB connection failed:", error.message);
+        process.exit(1);
     });

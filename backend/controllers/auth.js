@@ -1,37 +1,63 @@
 import User from "../models/User.js";
 
-
 /**
  * @route   POST /api/auth/login
- * @desc    Create or fetch user after Google login
+ * @desc    Return authenticated user (created/fetched by middleware)
  * @access  Private (Firebase)
  */
-
 export const googleLogin = async (req, res) => {
-    try {
-        const { uid, email, name, picture } = req.user;
+  try {
+    res.status(200).json({
+      success: true,
+      user: req.user, // Already populated by verifyFirebaseToken middleware
+    });
+  } catch (error) {
+    console.error("Auth error:", error.message);
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
+  }
+};
 
-        let user = await User.findOne({ firebaseUid: uid });
+/**
+ * @route   GET /api/auth/me
+ * @desc    Get current authenticated user
+ * @access  Private (Firebase)
+ */
+export const getCurrentUser = async (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      user: req.user,
+    });
+  } catch (error) {
+    console.error("Get user error:", error.message);
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
+  }
+};
 
-        if (!user) {
-            user = await User.create({
-                firebaseUid: uid,
-                name,
-                email,
-                profilePic: picture,
-                verification: {
-                    googleVerified: true,
-                    phoneProvided: false
-                }
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            user
-        });
-    } catch (error) {
-        console.error("Auth error:", error.message);
-        res.status(500).json({ message: "Authentication failed" });
-    }
+/**
+ * @route   POST /api/auth/logout
+ * @desc    Logout user (client-side token removal)
+ * @access  Public
+ */
+export const logout = async (req, res) => {
+  try {
+    // Firebase logout happens on client side
+    // This endpoint is for any server-side cleanup if needed
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    console.error("Logout error:", error.message);
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
+  }
 };
