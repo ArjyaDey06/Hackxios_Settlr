@@ -256,6 +256,47 @@ function OwnerLanding() {
           >
             <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
               
+              {/* Progress Bar */}
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-600">Step {currentStage} of 6</span>
+                  <span className="text-sm font-medium text-green-600">{Math.round((currentStage / 6) * 100)}% Complete</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <motion.div 
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full"
+                    initial={{ width: `${((currentStage - 1) / 6) * 100}%` }}
+                    animate={{ width: `${(currentStage / 6) * 100}%` }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                  />
+                </div>
+                <div className="flex justify-between mt-3">
+                  {[
+                    { step: 1, label: 'Verify' },
+                    { step: 2, label: 'Property' },
+                    { step: 3, label: 'Pricing' },
+                    { step: 4, label: 'Amenities' },
+                    { step: 5, label: 'Rules' },
+                    { step: 6, label: 'Images' }
+                  ].map(({ step, label }) => (
+                    <div key={step} className="flex flex-col items-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
+                        currentStage >= step 
+                          ? 'bg-green-500 text-white' 
+                          : 'bg-gray-200 text-gray-500'
+                      }`}>
+                        {currentStage > step ? '✓' : step}
+                      </div>
+                      <span className={`text-xs mt-1 hidden sm:block ${
+                        currentStage >= step ? 'text-green-600 font-medium' : 'text-gray-500'
+                      }`}>
+                        {label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
               {/* Form Stages */}
               <div className="p-6">
                 <AnimatePresence mode="wait">

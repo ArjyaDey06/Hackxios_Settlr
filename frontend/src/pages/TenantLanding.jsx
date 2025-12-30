@@ -120,7 +120,7 @@ function TenantLanding() {
         </div>
 
         {/* Continuous Horizontal Text Animation */}
-        <div className="relative w-full py-4 overflow-hidden backdrop-blur-sm mt-24">
+        <div className="relative w-full py-4 overflow-hidden bg-black backdrop-blur-sm mt-24">
           <div className="flex animate-scroll-text">
             <div className="flex space-x-8 px-4">
               {[
@@ -135,7 +135,7 @@ function TenantLanding() {
                 "Ahmedabad has affordable housing options 🏘️",
                 "Surat features modern studio apartments 🎬"
               ].map((text, index) => (
-                <span key={index} className="text-gray-700 font-medium whitespace-nowrap text-sm md:text-base">
+                <span key={index} className="text-white font-medium whitespace-nowrap text-sm md:text-base">
                   {text}
                 </span>
               ))}
@@ -154,7 +154,7 @@ function TenantLanding() {
                 "Ahmedabad has affordable housing options 🏘️",
                 "Surat features modern studio apartments 🎬"
               ].map((text, index) => (
-                <span key={`duplicate-${index}`} className="text-gray-700 font-medium whitespace-nowrap text-sm md:text-base">
+                <span key={`duplicate-${index}`} className="text-white font-medium whitespace-nowrap text-sm md:text-base">
                   {text}
                 </span>
               ))}
