@@ -11,6 +11,7 @@ function OwnerLanding() {
 
   const [showVerificationForm, setShowVerificationForm] = useState(false);
   const [currentStage, setCurrentStage] = useState(1);
+  const [formHeight, setFormHeight] = useState(0);
 
   const [images, setImages] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -125,6 +126,15 @@ function OwnerLanding() {
 
     return () => clearTimeout(t);
   }, [cityQuery, canUseLocationIQ, LOCATIONIQ_KEY, showVerificationForm, currentStage]);
+
+  // Smooth dropdown animation
+  useEffect(() => {
+    if (showVerificationForm) {
+      setFormHeight('auto');
+    } else {
+      setFormHeight(0);
+    }
+  }, [showVerificationForm]);
 
   // Debounced address autocomplete
   useEffect(() => {
@@ -281,7 +291,7 @@ const handleDeleteProperty = async (propertyId) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
@@ -292,7 +302,7 @@ const handleDeleteProperty = async (propertyId) => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Please Login First</h1>
           <p className="text-gray-600 mb-6">You need to be logged in to access the owner dashboard</p>
@@ -308,9 +318,9 @@ const handleDeleteProperty = async (propertyId) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <div className="bg-white border-b">
+      <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 py-16">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -335,6 +345,37 @@ const handleDeleteProperty = async (propertyId) => {
           </div>
         </div>
       </div>
+
+      {/* Form Container with Smooth Animation */}
+      <div 
+        className="overflow-hidden transition-all duration-500 ease-in-out"
+        style={{ 
+          maxHeight: showVerificationForm ? '5000px' : '0px',
+          opacity: showVerificationForm ? 1 : 0,
+          transform: showVerificationForm ? 'translateY(0)' : 'translateY(-20px)'
+        }}
+      >
+      {/* Progress Bar */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">Step {currentStage} of 6</span>
+            <span className="text-sm text-gray-500">{Math.round((currentStage / 6) * 100)}% Complete</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-green-600 h-2 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${(currentStage / 6) * 100}%` }}
+            />
+          </div>
+          <div className="flex justify-between mt-2">
+            <span className="text-xs text-gray-500">Verification</span>
+            <span className="text-xs text-gray-500">Property Details</span>
+            <span className="text-xs text-gray-500">Pricing</span>
+            <span className="text-xs text-gray-500">Amenities</span>
+            <span className="text-xs text-gray-500">Rules</span>
+            <span className="text-xs text-gray-500">Images</span>
+          </div>
+        </div>
 
       {/* Stage 1: Verification Form */}
       {showVerificationForm && currentStage === 1 && (
@@ -557,9 +598,7 @@ const handleDeleteProperty = async (propertyId) => {
                   <option value="Family">Family</option>
                   <option value="Anyone">Anyone</option>
 
-                  <option value="working-professional">Working Professional</option>
-                  <option value="family">Family</option>
-                  <option value="anyone">Anyone</option>
+                 
                 </select>
               </div>
 
@@ -1046,6 +1085,7 @@ const handleDeleteProperty = async (propertyId) => {
           </div>
         </div>
       )}
+      </div>
 
    {/* ✅ ADD THIS ENTIRE SECTION - MY LISTED PROPERTIES */}
       {!showVerificationForm && (
@@ -1061,18 +1101,12 @@ const handleDeleteProperty = async (propertyId) => {
               <p className="text-gray-600">Loading your properties...</p>
             </div>
           ) : myProperties.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+            <div className="text-center py-12">
               <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No Properties Listed Yet</h3>
-              <p className="text-gray-600 mb-6">Start by listing your first property</p>
-              <button
-                onClick={() => setShowVerificationForm(true)}
-                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-              >
-                List Your First Property
-              </button>
+              <p className="text-gray-600">Start by listing your first property using the button above</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
