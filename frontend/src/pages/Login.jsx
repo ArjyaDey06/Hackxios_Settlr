@@ -71,17 +71,17 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col relative">
       {/* Back Button */}
-      <div className="p-4">
+      <div className="absolute top-4 left-4 z-20">
         <button
-          onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-gray-600 hover:text-[#4ade80] transition-all duration-200 group"
+          onClick={() => navigate("/landing")}
+          className="back-button"
         >
-          <svg className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm font-medium">Back</span>
+          Back
         </button>
       </div>
 

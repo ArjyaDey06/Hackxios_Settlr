@@ -34,7 +34,7 @@ function OwnerLanding() {
     setTimeout(() => {
       setShowVerificationForm(true);
       setIsTransitioning(false);
-    }, 250);
+    }, 100);
   };
 
   const handleHideForm = () => {
@@ -42,7 +42,12 @@ function OwnerLanding() {
     setTimeout(() => {
       setShowVerificationForm(false);
       setIsTransitioning(false);
-    }, 250);
+      // Smooth scroll to top when form is closed
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 100);
   };
 
   // Stage navigation functions
@@ -51,6 +56,18 @@ function OwnerLanding() {
     setTimeout(() => {
       setCurrentStage(prev => Math.min(prev + 1, formStages.length));
       setIsFormAnimating(false);
+      // Scroll to form title after stage change with offset
+      const formTitle = document.querySelector('.transition-form-visible h2');
+      if (formTitle) {
+        const offset = 100; // Adjust this value as needed
+        const elementPosition = formTitle.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
     }, 400);
   };
 
@@ -59,6 +76,18 @@ function OwnerLanding() {
     setTimeout(() => {
       setCurrentStage(prev => Math.max(prev - 1, 1));
       setIsFormAnimating(false);
+      // Scroll to form title after stage change with offset
+      const formTitle = document.querySelector('.transition-form-visible h2');
+      if (formTitle) {
+        const offset = 100; // Adjust this value as needed
+        const elementPosition = formTitle.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
     }, 400);
   };
 
@@ -67,6 +96,18 @@ function OwnerLanding() {
     setTimeout(() => {
       setCurrentStage(stageId);
       setIsFormAnimating(false);
+      // Scroll to form title after stage change with offset
+      const formTitle = document.querySelector('.transition-form-visible h2');
+      if (formTitle) {
+        const offset = 100; // Adjust this value as needed
+        const elementPosition = formTitle.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
     }, 400);
   };
 
@@ -339,7 +380,7 @@ function OwnerLanding() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
@@ -350,7 +391,7 @@ function OwnerLanding() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Please Login First</h1>
           <p className="text-gray-600 mb-6">You need to be logged in to access the owner dashboard</p>
@@ -366,9 +407,23 @@ function OwnerLanding() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white relative">
+      {/* Header with Back Button */}
+      <div className="absolute top-4 left-4 z-20">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate("/landing")}
+          className="back-button"
+        >
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
+        </button>
+      </div>
+
       {/* Hero Section */}
-      <div className="bg-white border-b">
+      <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 py-16">
           <div className="text-center">
             <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 mb-6 leading-tight">
@@ -397,7 +452,7 @@ function OwnerLanding() {
                 ? 'transition-marketing-hidden' 
                 : 'transition-marketing-visible'
             }`}>
-              <div className="bg-gray-50/70 border-b border-gray-100">
+              <div className="bg-white/70">
                 <div className="max-w-7xl mx-auto px-4 py-3">
                   <div className="flex items-center justify-center gap-6 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
@@ -422,7 +477,7 @@ function OwnerLanding() {
 
       {/* Progress Bar and Stage Navigation - Only show when form is active */}
       {showVerificationForm && (
-        <div className={`bg-white border-b sticky top-0 z-40 shadow-sm transition-progress ${
+        <div className={`z-40 transition-progress ${
           isTransitioning 
             ? 'transition-progress-hidden' 
             : 'transition-progress-visible'
@@ -433,44 +488,59 @@ function OwnerLanding() {
               <div className="text-sm font-medium text-gray-900">
                 Step {currentStage} of {formStages.length} — {formStages[currentStage - 1]?.title}
               </div>
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={handleHideForm}
-                  className="text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors duration-200 underline decoration-dotted underline-offset-2"
-                >
-                  Back to Owner Dashboard
-                </button>
-                <div className="text-sm font-medium text-green-600">
-                  {completionPercentage}%
-                </div>
+              <div className="text-sm font-medium text-green-600">
+                {completionPercentage}%
               </div>
             </div>
 
-            {/* Progress Bar */}
-            <div className="w-full bg-gray-100 rounded-full h-0.5 overflow-hidden">
-              <div 
-                className="bg-green-600 h-0.5 rounded-full transition-all duration-700 ease-out"
-                style={{ width: `${completionPercentage}%` }}
-              />
-            </div>
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between items-center mt-8">
-              <button
-                onClick={goToPreviousStage}
-                disabled={currentStage === 1}
-                className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                ← Previous
-              </button>
-              
-              <button
-                onClick={goToNextStage}
-                disabled={currentStage === formStages.length}
-                className="text-sm font-medium text-green-600 hover:text-green-700 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {currentStage === formStages.length ? 'Complete' : 'Next'} →
-              </button>
+            {/* Modern Step Dots Progress Bar */}
+            <div className="flex items-center justify-center space-x-3">
+              {formStages.map((stage, index) => {
+                const isCompleted = index + 1 < currentStage;
+                const isCurrent = index + 1 === currentStage;
+                const isUpcoming = index + 1 > currentStage;
+                
+                return (
+                  <div key={stage.id} className="flex items-center">
+                    {/* Step Dot */}
+                    <div className="relative">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                          isCompleted
+                            ? 'bg-green-500 text-white scale-110 shadow-lg shadow-green-500/30'
+                            : isCurrent
+                            ? 'bg-green-100 text-green-700 border-2 border-green-500 scale-110 shadow-md'
+                            : 'bg-gray-100 text-gray-400 border-2 border-gray-200'
+                        }`}
+                      >
+                        {isCompleted ? (
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        ) : (
+                          index + 1
+                        )}
+                      </div>
+                      
+                      {/* Step Label */}
+                      <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                        <span className={`text-xs font-medium transition-colors duration-300 ${
+                          isCurrent ? 'text-green-700' : isCompleted ? 'text-green-600' : 'text-gray-400'
+                        }`}>
+                          {stage.title.split(' ')[0]}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Connector Line */}
+                    {index < formStages.length - 1 && (
+                      <div className={`w-12 h-0.5 mx-2 transition-all duration-500 ${
+                        index + 1 < currentStage ? 'bg-green-500' : 'bg-gray-200'
+                      }`} />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -483,7 +553,7 @@ function OwnerLanding() {
             ? 'transition-form-hidden' 
             : 'transition-form-visible'
         }`}>
-          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-12">
+          <div className="bg-white rounded-2xl border-2 border-green-500 p-12">
             <h2 className="text-4xl font-black mb-3 text-gray-900">Stage 1: Owner Verification</h2>
             <p className="text-gray-600 mb-12 text-lg">Please verify your details to proceed with property listing</p>
 
@@ -541,7 +611,7 @@ function OwnerLanding() {
             ? 'transition-form-hidden' 
             : 'transition-form-visible'
         }`}>
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-10">
+          <div className="bg-white rounded-2xl border-2 border-green-500 p-10">
             <h2 className="text-3xl font-bold mb-4 text-gray-900">Stage 2: Property Details</h2>
             <p className="text-gray-600 mb-8 text-lg">Tell us about your property</p>
 
@@ -754,7 +824,7 @@ function OwnerLanding() {
             ? 'transition-form-hidden' 
             : 'transition-form-visible'
         }`}>
-          <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="bg-white rounded-2xl border-2 border-green-500 p-8">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 3: Pricing Details</h2>
             <p className="text-gray-600 mb-6">Set your pricing and charges with absolute clarity</p>
 
@@ -849,13 +919,13 @@ function OwnerLanding() {
               <div className="flex gap-4">
                 <button
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  onClick={() => setCurrentStage(4)}
+                  onClick={goToNextStage}
                 >
                   Continue to Next Stage
                 </button>
                 <button
                   className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-                  onClick={goToNextStage}
+                  onClick={goToPreviousStage}
                 >
                   Back
                 </button>
@@ -872,7 +942,7 @@ function OwnerLanding() {
             ? 'transition-form-hidden' 
             : 'transition-form-visible'
         }`}>
-          <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="bg-white rounded-2xl border-2 border-green-500 p-8">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 4: Amenities</h2>
             <p className="text-gray-600 mb-6">Select all the amenities available with your property</p>
 
@@ -952,7 +1022,7 @@ function OwnerLanding() {
             ? 'transition-form-hidden' 
             : 'transition-form-visible'
         }`}>
-          <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="bg-white rounded-2xl border-2 border-green-500 p-8">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 5: Rules & Preferences</h2>
             <p className="text-gray-600 mb-6">Set house rules and preferences for your property</p>
 
@@ -1019,7 +1089,7 @@ function OwnerLanding() {
             ? 'transition-form-hidden' 
             : 'transition-form-visible'
         }`}>
-          <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="bg-white rounded-2xl border-2 border-green-500 p-8">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 6: Upload Property Images</h2>
             <p className="text-gray-600 mb-6">Upload up to 10 high-quality images of your property</p>
 
@@ -1308,11 +1378,11 @@ function OwnerLanding() {
                     {/* Pricing */}
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-xs text-gray-500 uppercase tracking-wider">Monthly Rent</span>
+                        <span className="text-xs text-emerald-400 uppercase tracking-wider">Monthly Rent</span>
                         <span className="text-xl font-bold text-emerald-400">₹{property.pricing?.rent || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-xs text-gray-500 uppercase tracking-wider">Security Deposit</span>
+                        <span className="text-xs text-emerald-400 uppercase tracking-wider">Security Deposit</span>
                         <span className="text-xl font-bold text-emerald-400">₹{property.pricing?.deposit || 'N/A'}</span>
                       </div>
                     </div>

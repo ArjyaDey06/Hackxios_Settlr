@@ -157,9 +157,9 @@ function TenantLanding() {
           {/* Back Button */}
           <button
             onClick={() => navigate("/landing")}
-            className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-800 transition-all duration-200 hover:scale-105"
+            className="back-button"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Back

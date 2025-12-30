@@ -11,7 +11,7 @@ const handleAnimationComplete = () => {
 };
 
 function Landing() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
   const buttonsRef = useRef(null);
 
@@ -91,6 +91,7 @@ function Landing() {
           }
         }
       `}</style>
+
       {/* Hero Section */}
       <div className="bg-white border-b flex-grow">
         <div className="max-w-7xl mx-auto px-4 py-16">
