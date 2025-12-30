@@ -1,5 +1,7 @@
 import express from "express";
 import verifyFirebaseToken from "../middleware/verifyFirebaseToken.js";
+import upload from '../middleware/upload.js'
+
 import {
     createProperty,
     getAllProperties,
@@ -17,7 +19,7 @@ const router = express.Router();
 
 // Protected routes (require authentication)
 router.get("/my-properties", verifyFirebaseToken, getOwnerProperties);  // ✅ ADD THIS!
-router.post("/", verifyFirebaseToken, createProperty);
+router.post("/", verifyFirebaseToken, upload.array("images", 10), createProperty);
 router.put("/:id", verifyFirebaseToken, updateProperty);                // ✅ ADD THIS!
 router.delete("/:id", verifyFirebaseToken, deleteProperty);             // ✅ ADD THIS!
 

@@ -3,28 +3,31 @@ import Property from "../models/Property.js";
 // ✅ Create a new property
 export const createProperty = async (req, res) => {
   try {
-    const ownerId = req.user.uid;  // Firebase UID from token
+    const ownerId = req.user.uid;
 
-    console.log('🏗️ Creating property for owner:', ownerId);
-    console.log('📧 Owner email:', req.user.email);
-    console.log('📦 Request body:', req.body);
+    const images = req.files
+      ? req.files.map(file => ({
+        url: file.path,
+        hash: file.filename
+      }))
+      : [];
 
     const property = await Property.create({
       ownerId,
       ownerName: req.user.name,
       ownerPhone: req.user.phone,
+      images,
       ...req.body
     });
 
-    console.log('✅ Property created:', property._id);
-    console.log('✅ Saved with ownerId:', property.ownerId);
-
     res.status(201).json(property);
   } catch (error) {
-    console.error('❌ Error creating property:', error);
+    console.error("❌ Property create error:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
+
 
 // ✅ Get all verified properties (public listing)
 export const getAllProperties = async (req, res) => {
@@ -48,14 +51,14 @@ export const getAllProperties = async (req, res) => {
 export const getOwnerProperties = async (req, res) => {
   try {
     const ownerId = req.user.uid;  // Firebase UID from token
-    
+
     console.log('🔍 Fetching properties for Firebase UID:', ownerId);
     console.log('👤 User email:', req.user.email);
-    
+
     const properties = await Property.find({ ownerId }).sort({ createdAt: -1 });
-    
+
     console.log('📦 Found properties:', properties.length);
-    
+
     if (properties.length > 0) {
       console.log('📝 Sample property:', {
         _id: properties[0]._id,
@@ -63,13 +66,13 @@ export const getOwnerProperties = async (req, res) => {
         ownerId: properties[0].ownerId
       });
     }
-    
+
     res.status(200).json(properties);
   } catch (error) {
     console.error("❌ Error fetching owner properties:", error);
-    res.status(500).json({ 
-      message: "Failed to fetch properties", 
-      error: error.message 
+    res.status(500).json({
+      message: "Failed to fetch properties",
+      error: error.message
     });
   }
 };
@@ -99,7 +102,7 @@ export const getPropertyById = async (req, res) => {
 export const getPropertiesByCity = async (req, res) => {
   try {
     const { city } = req.query;
-    
+
     console.log('🔍 Fetching properties by city:', city);
 
     if (!city) {
@@ -137,8 +140,8 @@ export const updateProperty = async (req, res) => {
 
     if (!property) {
       console.log('❌ Property not found or unauthorized');
-      return res.status(403).json({ 
-        message: "Property not found or you don't have permission to update it" 
+      return res.status(403).json({
+        message: "Property not found or you don't have permission to update it"
       });
     }
 
@@ -161,15 +164,15 @@ export const deleteProperty = async (req, res) => {
     console.log('🔑 Owner Firebase UID:', ownerId);
 
     // Find property and verify ownership
-    const property = await Property.findOne({ 
-      _id: id, 
-      ownerId: ownerId 
+    const property = await Property.findOne({
+      _id: id,
+      ownerId: ownerId
     });
 
     if (!property) {
       console.log('❌ Property not found or unauthorized');
-      return res.status(404).json({ 
-        message: "Property not found or you don't have permission to delete it" 
+      return res.status(404).json({
+        message: "Property not found or you don't have permission to delete it"
       });
     }
 
@@ -180,15 +183,15 @@ export const deleteProperty = async (req, res) => {
 
     console.log('✅ Property deleted successfully');
 
-    res.status(200).json({ 
+    res.status(200).json({
       message: "Property deleted successfully",
       deletedPropertyId: id
     });
   } catch (error) {
     console.error("❌ Error deleting property:", error);
-    res.status(500).json({ 
-      message: "Failed to delete property", 
-      error: error.message 
+    res.status(500).json({
+      message: "Failed to delete property",
+      error: error.message
     });
   }
 };
@@ -196,14 +199,14 @@ export const deleteProperty = async (req, res) => {
 // ✅ Search properties with filters (optional - for advanced search)
 export const searchProperties = async (req, res) => {
   try {
-    const { 
-      city, 
-      propertyType, 
-      bhkType, 
-      minRent, 
+    const {
+      city,
+      propertyType,
+      bhkType,
+      minRent,
       maxRent,
       furnishing,
-      preferredTenant 
+      preferredTenant
     } = req.query;
 
     console.log('🔍 Searching properties with filters:', req.query);
