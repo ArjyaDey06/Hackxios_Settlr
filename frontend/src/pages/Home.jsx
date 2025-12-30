@@ -158,29 +158,33 @@ function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center mb-24 mt-8">
 
         <div className="text-center md:text-left">
-          <h1 className="text-4xl sm:text-5xl font-bold leading-tight">
-            Rent smart, Live better
-          </h1>
+          <div className="max-w-lg">
+            <h1 className="text-6xl sm:text-7xl font-black leading-tight tracking-tight">
+              Rent smart, Live better
+            </h1>
+          </div>
 
-          <p className="mt-5 text-gray-600 text-lg">
-            Find verified rentals with{" "}
-            <span className="font-medium text-black">
-              zero hidden charges
-            </span>
-            , transparent pricing, and instant booking.
-          </p>
+          <div className="max-w-md mt-8">
+            <p className="text-xl text-gray-600 leading-relaxed">
+              Find verified rentals with{" "}
+              <span className="font-bold text-black text-xl">
+                zero hidden charges
+              </span>
+              , transparent pricing, and instant booking.
+            </p>
+          </div>
 
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
+          <div className="mt-12 flex flex-col sm:flex-row gap-6">
             <button
               onClick={() => navigate("/register")}
-              className="px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition"
+              className="px-10 py-4 bg-black text-white rounded-xl hover:bg-gray-900 hover:shadow-2xl hover:shadow-black/30 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-black/20 transition-all duration-300 font-bold text-lg"
             >
               Get Started
             </button>
 
             <button
               onClick={() => navigate("/login")}
-              className="px-8 py-3 border border-black rounded-lg hover:bg-black hover:text-white transition"
+              className="px-10 py-4 border-2 border-black rounded-xl hover:bg-black hover:text-white hover:shadow-xl hover:shadow-black/20 transition-all duration-300 font-semibold text-lg"
             >
               Login
             </button>

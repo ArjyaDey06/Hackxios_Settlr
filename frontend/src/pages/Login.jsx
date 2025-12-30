@@ -15,12 +15,22 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
+    setIsLoading(true);
     try {
+      console.log("Starting Google login...");
+      
+      // Check if Firebase is properly configured
+      if (!auth) {
+        throw new Error("Firebase auth not initialized");
+      }
+      
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
+      console.log("Firebase sign-in successful:", result.user);
 
       // ✅ GET FIREBASE ID TOKEN
       const token = await result.user.getIdToken();
+      console.log("Got Firebase token:", token.substring(0, 20) + "...");
 
       // ✅ SEND TOKEN TO BACKEND
       const res = await fetch("http://localhost:5000/api/auth/login", {
@@ -32,17 +42,23 @@ function Login() {
       });
 
       const data = await res.json();
+      console.log("Backend response:", data);
 
       if (!res.ok) {
-        throw new Error(data.message);
+        throw new Error(data.message || "Authentication failed");
       }
 
       // ✅ STORE USER FROM BACKEND
       setUser(data.user);
+      console.log("User set in context:", data.user);
 
+      console.log("Navigating to /landing...");
       navigate("/landing");
     } catch (error) {
       console.error("Login failed:", error.message);
+      alert(`Login failed: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
