@@ -1,14 +1,17 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+
 import mongoose from "mongoose";
+
 
 // ✅ Import routes ONCE - Remove the duplicate import on line 4
 import authRoutes from "./routes/auth.js";
 import propertyRoutes from "./routes/property.js";  // ✅ Only import once!
 import tenantRoutes from "./routes/tenant.js";
-
-dotenv.config();
+import chatRoutes from "./routes/chatRoutes.js";
 
 const app = express();
 
@@ -30,6 +33,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/properties", propertyRoutes);  // ✅ This registers /api/properties/my-properties
 app.use("/api/tenant", tenantRoutes);
+app.use("/api", chatRoutes); 
 
 /* =====================
    Health Check

@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { auth } from "../firebase/firebase";
 import Footer from "../components/Footer";
+import ReactMarkdown from 'react-markdown';
 
 function TenantLanding() {
   const navigate = useNavigate();
@@ -65,6 +66,10 @@ function TenantLanding() {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef(null);
+  useEffect(() => {
+    
+  }, [messages, isTyping]);
 
   // Auto-resize textarea hook
   const textareaRef = useRef(null);
@@ -106,30 +111,88 @@ function TenantLanding() {
     "Find furnished apartments for couples"
   ];
 
-  const handleSendMessage = (text) => {
-    if (text.trim()) {
-      const newMessage = {
-        id: messages.length + 1,
-        type: 'user',
-        text: text,
+  const handleSendMessage = async (text) => {
+    if (!text.trim()) return;
+
+    // Add user message
+    const userMessage = {
+      id: Date.now(),
+      type: 'user',
+      text: text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue("");
+    adjustHeight(true);
+    setIsTyping(true);
+
+    try {
+      // Get Firebase token
+      const token = await auth.currentUser?.getIdToken();
+      
+      if (!token) {
+        throw new Error("Please sign in to use the chat");
+      }
+
+      // Build conversation history for AI
+      const conversationHistory = messages.map(msg => ({
+        role: msg.type === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      }));
+
+      // Add the new user message
+      conversationHistory.push({
+        role: 'user',
+        content: text
+      });
+
+      console.log('🤖 Sending to AI:', text);
+
+      // Call backend AI endpoint
+      const response = await fetch('http://localhost:5000/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          messages: conversationHistory
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ AI Response:', data);
+
+      // Add AI response
+      const aiMessage = {
+        id: Date.now() + 1,
+        type: 'ai',
+        text: data.message || "I couldn't process that request. Please try again.",
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        propertiesFound: data.propertiesFound || 0
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+
+    } catch (error) {
+      console.error('❌ Chat error:', error);
+      
+      // Show error message
+      const errorMessage = {
+        id: Date.now() + 1,
+        type: 'ai',
+        text: `❌ Sorry, I encountered an error: ${error.message}. Please try again or contact support.`,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      setMessages([...messages, newMessage]);
-      setInputValue("");
-      adjustHeight(true);
       
-      // Simulate AI typing
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        const aiResponse = {
-          id: messages.length + 2,
-          type: 'ai',
-          text: "🔍 I'm searching for properties that match your criteria. Let me analyze the available listings and find the best options for you...",
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
-        setMessages(prev => [...prev, aiResponse]);
-      }, 2000);
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsTyping(false);
     }
   };
 
@@ -157,9 +220,9 @@ function TenantLanding() {
           {/* Back Button */}
           <button
             onClick={() => navigate("/landing")}
-            className="back-button"
+            className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-800 transition-all duration-200 hover:scale-105"
           >
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Back
@@ -267,7 +330,7 @@ function TenantLanding() {
                     </div>
                   ))}
                   
-                  {isTyping && (
+                                    {isTyping && (
                     <div className="flex justify-start animate-fade-in">
                       <div className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-900 rounded-2xl rounded-bl-none border border-gray-300 px-4 py-3 shadow-lg">
                         <div className="flex items-center gap-2">
@@ -278,7 +341,10 @@ function TenantLanding() {
                       </div>
                     </div>
                   )}
+                  
+                  <div ref={messagesEndRef} />
                 </div>
+
 
                 {/* Input Area */}
                 <div className="p-4 bg-white border-t border-emerald-100">
