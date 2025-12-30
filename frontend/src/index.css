@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 /* Global Styles */
@@ -8,9 +8,117 @@ body {
   color: #1A1A1A;
 }
 
+/* Enhanced Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+}
+
+h1 {
+  font-weight: 800 !important;
+  line-height: 1.05 !important;
+}
+
+h2 {
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+}
+
+/* Premium Button Styles */
+button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+button:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Enhanced Card Styles */
+[class*="rounded"], [class*="shadow"] {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+[class*="shadow"]:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Focus Styles */
+button:focus-visible {
+  outline: 2px solid #10B981 !important;
+  outline-offset: 2px !important;
+}
+
 /* CSS Variables for Brand Colors */
 :root {
   --brand-emerald: #10B981;
+}
+
+/* CSS-based transition animations for form sections */
+.transition-section {
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+.transition-section-hidden {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.transition-section-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Marketing content transition */
+.transition-marketing {
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+.transition-marketing-hidden {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.transition-marketing-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Progress bar transition */
+.transition-progress {
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+.transition-progress-hidden {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.transition-progress-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Form content transition */
+.transition-form {
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+.transition-form-hidden {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.transition-form-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Page transition animations */

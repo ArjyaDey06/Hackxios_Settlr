@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { auth } from "../firebase/firebase";
+import { MapPin, Trash2, Eye, Home, Users, ChevronRight, Check } from "lucide-react";
 
 function OwnerLanding() {
   const navigate = useNavigate();
@@ -11,6 +12,63 @@ function OwnerLanding() {
 
   const [showVerificationForm, setShowVerificationForm] = useState(false);
   const [currentStage, setCurrentStage] = useState(1);
+  const [isFormAnimating, setIsFormAnimating] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Form stages configuration
+  const formStages = [
+    { id: 1, title: "Owner Verification", description: "Verify your identity" },
+    { id: 2, title: "Property Details", description: "Basic property information" },
+    { id: 3, title: "Pricing", description: "Rent and deposit details" },
+    { id: 4, title: "Amenities", description: "Available facilities" },
+    { id: 5, title: "Rules & Preferences", description: "House rules and tenant preferences" },
+    { id: 6, title: "Upload Images", description: "Add property photos" }
+  ];
+
+  // Calculate completion percentage
+  const completionPercentage = Math.round((currentStage / formStages.length) * 100);
+
+  // Handle smooth transition between landing and form
+  const handleShowForm = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setShowVerificationForm(true);
+      setIsTransitioning(false);
+    }, 250);
+  };
+
+  const handleHideForm = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setShowVerificationForm(false);
+      setIsTransitioning(false);
+    }, 250);
+  };
+
+  // Stage navigation functions
+  const goToNextStage = () => {
+    setIsFormAnimating(true);
+    setTimeout(() => {
+      setCurrentStage(prev => Math.min(prev + 1, formStages.length));
+      setIsFormAnimating(false);
+    }, 400);
+  };
+
+  const goToPreviousStage = () => {
+    setIsFormAnimating(true);
+    setTimeout(() => {
+      setCurrentStage(prev => Math.max(prev - 1, 1));
+      setIsFormAnimating(false);
+    }, 400);
+  };
+
+  const goToStage = (stageId) => {
+    setIsFormAnimating(true);
+    setTimeout(() => {
+      setCurrentStage(stageId);
+      setIsFormAnimating(false);
+    }, 400);
+  };
 
   const [images, setImages] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -313,15 +371,15 @@ function OwnerLanding() {
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-16">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 mb-6 leading-tight">
               Welcome, {user?.name || "Property Owner"}!
             </h1>
             <p className="text-xl text-gray-600 mb-8">List your property and find the perfect tenants</p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <button
-                onClick={() => setShowVerificationForm((s) => !s)}
-                className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                onClick={showVerificationForm ? handleHideForm : handleShowForm}
+                className="px-10 py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 hover:shadow-xl hover:shadow-green-600/30 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-green-600/30 focus:ring-offset-2 transition-all duration-300 font-bold text-lg"
               >
                 {showVerificationForm ? "Hide Form" : "List Your Property"}
               </button>
@@ -332,54 +390,141 @@ function OwnerLanding() {
                 LocationIQ autocomplete is disabled (missing VITE_LOCATIONIQ_KEY).
               </p>
             )}
+
+            {/* Marketing Content */}
+            <div className={`transition-marketing ${
+              isTransitioning || showVerificationForm 
+                ? 'transition-marketing-hidden' 
+                : 'transition-marketing-visible'
+            }`}>
+              <div className="bg-gray-50/70 border-b border-gray-100">
+                <div className="max-w-7xl mx-auto px-4 py-3">
+                  <div className="flex items-center justify-center gap-6 text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span>Quick 5-minute listing process</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <span>Instant verification</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <span>Reach verified tenants</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Progress Bar and Stage Navigation - Only show when form is active */}
+      {showVerificationForm && (
+        <div className={`bg-white border-b sticky top-0 z-40 shadow-sm transition-progress ${
+          isTransitioning 
+            ? 'transition-progress-hidden' 
+            : 'transition-progress-visible'
+        }`}>
+          <div className="max-w-4xl mx-auto px-4 py-12">
+            {/* Progress Header */}
+            <div className="flex justify-between items-center mb-6">
+              <div className="text-sm font-medium text-gray-900">
+                Step {currentStage} of {formStages.length} — {formStages[currentStage - 1]?.title}
+              </div>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handleHideForm}
+                  className="text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors duration-200 underline decoration-dotted underline-offset-2"
+                >
+                  Back to Owner Dashboard
+                </button>
+                <div className="text-sm font-medium text-green-600">
+                  {completionPercentage}%
+                </div>
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="w-full bg-gray-100 rounded-full h-0.5 overflow-hidden">
+              <div 
+                className="bg-green-600 h-0.5 rounded-full transition-all duration-700 ease-out"
+                style={{ width: `${completionPercentage}%` }}
+              />
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between items-center mt-8">
+              <button
+                onClick={goToPreviousStage}
+                disabled={currentStage === 1}
+                className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                ← Previous
+              </button>
+              
+              <button
+                onClick={goToNextStage}
+                disabled={currentStage === formStages.length}
+                className="text-sm font-medium text-green-600 hover:text-green-700 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {currentStage === formStages.length ? 'Complete' : 'Next'} →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Stage 1: Verification Form */}
       {showVerificationForm && currentStage === 1 && (
-        <div className="max-w-2xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 1: Owner Verification</h2>
-            <p className="text-gray-600 mb-6">Please verify your details to proceed with property listing</p>
+        <div className={`max-w-2xl mx-auto px-4 py-8 transition-form ${
+          isFormAnimating || isTransitioning 
+            ? 'transition-form-hidden' 
+            : 'transition-form-visible'
+        }`}>
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-12">
+            <h2 className="text-4xl font-black mb-3 text-gray-900">Stage 1: Owner Verification</h2>
+            <p className="text-gray-600 mb-12 text-lg">Please verify your details to proceed with property listing</p>
 
-            <div className="space-y-6">
+            <div className="space-y-10">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Owner Name</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Owner Name</label>
                 <input
                   type="text"
                   value={verificationData.ownerName}
                   onChange={(e) =>
                     setVerificationData({ ...verificationData, ownerName: e.target.value })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-5 py-4 text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 focus:bg-white transition-all duration-200"
                   placeholder="Auto-filled from your account"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Phone Number *</label>
                 <input
                   type="tel"
                   value={verificationData.phoneNumber}
                   onChange={(e) =>
                     setVerificationData({ ...verificationData, phoneNumber: e.target.value })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-5 py-4 text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/20 focus:border-green-500 focus:bg-white transition-all duration-200"
                   placeholder="Enter your phone number for verification"
                 />
+                <p className="mt-2 text-xs text-gray-500">Used only for verification and tenant communication</p>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex gap-6 mt-12">
                 <button
-                  className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  onClick={() => setCurrentStage(2)}
+                  className="flex-1 px-8 py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 hover:shadow-lg hover:shadow-green-600/25 hover:-translate-y-0.5 transition-all duration-300 font-semibold text-lg"
+                  onClick={goToNextStage}
                 >
                   Verify & Continue
                 </button>
                 <button
                   className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-                  onClick={() => setShowVerificationForm(false)}
+                  onClick={handleHideForm}
                 >
                   Cancel
                 </button>
@@ -391,12 +536,16 @@ function OwnerLanding() {
 
       {/* Stage 2: Property Details Form */}
       {showVerificationForm && currentStage === 2 && (
-        <div className="max-w-2xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 2: Property Details</h2>
-            <p className="text-gray-600 mb-6">Tell us about your property</p>
+        <div className={`max-w-2xl mx-auto px-4 py-8 transition-form ${
+          isFormAnimating || isTransitioning 
+            ? 'transition-form-hidden' 
+            : 'transition-form-visible'
+        }`}>
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-10">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">Stage 2: Property Details</h2>
+            <p className="text-gray-600 mb-8 text-lg">Tell us about your property</p>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Property Title *</label>
                 <input
@@ -582,13 +731,13 @@ function OwnerLanding() {
               <div className="flex gap-4">
                 <button
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  onClick={() => setCurrentStage(3)}
+                  onClick={goToNextStage}
                 >
                   Continue to Next Stage
                 </button>
                 <button
                   className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-                  onClick={() => setCurrentStage(1)}
+                  onClick={goToPreviousStage}
                 >
                   Back
                 </button>
@@ -600,7 +749,11 @@ function OwnerLanding() {
 
       {/* Stage 3: Pricing - Continues below... */}
       {showVerificationForm && currentStage === 3 && (
-        <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className={`max-w-2xl mx-auto px-4 py-8 transition-form ${
+          isFormAnimating || isTransitioning 
+            ? 'transition-form-hidden' 
+            : 'transition-form-visible'
+        }`}>
           <div className="bg-white rounded-lg shadow-lg p-8">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 3: Pricing Details</h2>
             <p className="text-gray-600 mb-6">Set your pricing and charges with absolute clarity</p>
@@ -702,7 +855,7 @@ function OwnerLanding() {
                 </button>
                 <button
                   className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-                  onClick={() => setCurrentStage(2)}
+                  onClick={goToNextStage}
                 >
                   Back
                 </button>
@@ -714,34 +867,62 @@ function OwnerLanding() {
 
       {/* Stage 4: Amenities */}
       {showVerificationForm && currentStage === 4 && (
-        <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className={`max-w-2xl mx-auto px-4 py-8 transition-form ${
+          isFormAnimating || isTransitioning 
+            ? 'transition-form-hidden' 
+            : 'transition-form-visible'
+        }`}>
           <div className="bg-white rounded-lg shadow-lg p-8">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 4: Amenities</h2>
             <p className="text-gray-600 mb-6">Select all the amenities available with your property</p>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {[
-                  { id: "wifi", label: "Wi-Fi" },
-                  { id: "powerBackup", label: "Power Backup" },
-                  { id: "lift", label: "Lift" },
-                  { id: "parking", label: "Parking" },
-                  { id: "washingMachine", label: "Washing Machine" },
-                  { id: "fridge", label: "Fridge" },
-                  { id: "ac", label: "Air Conditioning" },
-                  { id: "geyser", label: "Geyser" },
-                  { id: "housekeeping", label: "Housekeeping" },
-                  { id: "security", label: "Security / CCTV" },
-                ].map(({ id, label }) => (
-                  <label key={id} className="flex items-center space-x-3">
+                  { id: "wifi", label: "Wi-Fi", icon: "📶" },
+                  { id: "powerBackup", label: "Power Backup", icon: "⚡" },
+                  { id: "lift", label: "Lift", icon: "🛗" },
+                  { id: "parking", label: "Parking", icon: "🚗" },
+                  { id: "washingMachine", label: "Washing Machine", icon: "🌊" },
+                  { id: "fridge", label: "Fridge", icon: "❄️" },
+                  { id: "ac", label: "Air Conditioning", icon: "❄️" },
+                  { id: "geyser", label: "Geyser", icon: "🚿" },
+                  { id: "housekeeping", label: "Housekeeping", icon: "🧹" },
+                  { id: "security", label: "Security / CCTV", icon: "🔒" },
+                ].map(({ id, label, icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setAmenities({ ...amenities, [id]: !amenities[id] })}
+                    className={`relative p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
+                      amenities[id]
+                        ? 'border-green-500 bg-green-50 shadow-sm hover:shadow-md hover:bg-green-100'
+                        : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm'
+                    }`}
+                  >
                     <input
                       type="checkbox"
                       checked={amenities[id]}
                       onChange={(e) => setAmenities({ ...amenities, [id]: e.target.checked })}
-                      className="h-5 w-5 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                      className="sr-only"
+                      tabIndex="-1"
                     />
-                    <span className="text-gray-700">{label}</span>
-                  </label>
+                    <div className="flex flex-col items-center space-y-2">
+                      <span className="text-2xl">{icon}</span>
+                      <span className={`text-sm font-medium text-center ${
+                        amenities[id] ? 'text-green-700' : 'text-gray-700'
+                      }`}>
+                        {label}
+                      </span>
+                    </div>
+                    {amenities[id] && (
+                      <div className="absolute top-2 right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
                 ))}
               </div>
 
@@ -766,7 +947,11 @@ function OwnerLanding() {
 
       {/* Stage 5: Rules & Preferences */}
       {showVerificationForm && currentStage === 5 && (
-        <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className={`max-w-2xl mx-auto px-4 py-8 transition-form ${
+          isFormAnimating || isTransitioning 
+            ? 'transition-form-hidden' 
+            : 'transition-form-visible'
+        }`}>
           <div className="bg-white rounded-lg shadow-lg p-8">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 5: Rules & Preferences</h2>
             <p className="text-gray-600 mb-6">Set house rules and preferences for your property</p>
@@ -811,13 +996,13 @@ function OwnerLanding() {
               <div className="flex gap-4 pt-4">
                 <button
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                  onClick={() => setCurrentStage(6)}
+                  onClick={goToNextStage}
                 >
                   Next: Upload Images
                 </button>
                 <button
                   className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-                  onClick={() => setCurrentStage(4)}
+                  onClick={goToPreviousStage}
                 >
                   Back
                 </button>
@@ -829,7 +1014,11 @@ function OwnerLanding() {
 
       {/* Stage 6: Image Upload */}
       {showVerificationForm && currentStage === 6 && (
-        <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className={`max-w-4xl mx-auto px-4 py-8 transition-form ${
+          isFormAnimating || isTransitioning 
+            ? 'transition-form-hidden' 
+            : 'transition-form-visible'
+        }`}>
           <div className="bg-white rounded-lg shadow-lg p-8">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Stage 6: Upload Property Images</h2>
             <p className="text-gray-600 mb-6">Upload up to 10 high-quality images of your property</p>
@@ -1015,7 +1204,7 @@ function OwnerLanding() {
 
                       alert("Property successfully saved to database!");
 
-                      setShowVerificationForm(false);
+                      handleHideForm();
                       setCurrentStage(1);
                       setImages([]);
                     } catch (error) {
@@ -1073,34 +1262,24 @@ function OwnerLanding() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {myProperties.map((property) => (
-                <div key={property._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">{property.title}</h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          {property.city}
-                        </div>
+                <div key={property._id} className="group bg-black border border-white/5 rounded-xl overflow-hidden shadow-xl shadow-black/20 hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/30 cursor-pointer transition-all duration-300 ease-out hover:scale-[1.01] hover:translate-y-[-4px]">
+                  {/* Image Section */}
+                  <div className="relative h-48 overflow-hidden rounded-t-xl">
+                    {property.images && property.images.length > 0 ? (
+                      <div className="relative">
+                        <img
+                          src={property.images[0]}
+                          alt={property.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent"></div>
                       </div>
-                      <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                        {property.propertyType}
-                      </span>
-                    </div>
-
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Monthly Rent</span>
-                        <span className="font-semibold text-gray-900">₹{property.pricing.rent}</span>
+                    ) : (
+                      <div className="relative w-full h-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 flex items-center justify-center">
+                        <Home className="w-16 h-16 text-emerald-500/30" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent"></div>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Security Deposit</span>
-                        <span className="font-semibold text-gray-900">₹{property.pricing.deposit}</span>
-                      </div>
-                    </div>
+                    )}
 
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <span className="px-2 py-1 bg-gray-100 rounded text-xs">
@@ -1111,26 +1290,53 @@ function OwnerLanding() {
                     </div>
                   </div>
 
-                  <div className="border-t pt-4 px-6 pb-4 flex gap-2">
-                    <button
-                      onClick={() => alert(`View details for ${property._id}`)}
-                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-                    >
-                      View Details
-                    </button>
-                    <button
-                      onClick={() => handleDeleteProperty(property._id)}
-                      disabled={deletingId === property._id}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium disabled:opacity-50"
-                    >
-                      {deletingId === property._id ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      ) : (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      )}
-                    </button>
+                  {/* Content Section */}
+                  <div className="p-8 space-y-6">
+                    <h3 className="text-xl font-bold text-white tracking-tight mb-2 capitalize">
+                      {property.title}
+                    </h3>
+                    
+                    <div className="inline-block px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded border border-emerald-500/20 mt-2">
+                      {property.propertyType}
+                    </div>
+                    
+                    <div className="flex items-center gap-2 text-sm text-emerald-400">
+                      <MapPin className="w-4 h-4" />
+                      <span>{property.city}</span>
+                    </div>
+
+                    {/* Pricing */}
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500 uppercase tracking-wider">Monthly Rent</span>
+                        <span className="text-xl font-bold text-emerald-400">₹{property.pricing?.rent || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500 uppercase tracking-wider">Security Deposit</span>
+                        <span className="text-xl font-bold text-emerald-400">₹{property.pricing?.deposit || 'N/A'}</span>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => alert(`View details for ${property._id}`)}
+                        className="flex-1 bg-emerald-500/90 hover:bg-emerald-500 text-white py-2.5 px-4 rounded-lg text-xs font-semibold tracking-widest uppercase transition-all duration-300"
+                      >
+                        VIEW DETAILS
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProperty(property._id)}
+                        disabled={deletingId === property._id}
+                        className="w-10 h-10 flex items-center justify-center bg-gray-100 border border-gray-200 hover:border-red-400 hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-lg transition-all duration-300 disabled:opacity-50"
+                      >
+                        {deletingId === property._id ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/20 border-t-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

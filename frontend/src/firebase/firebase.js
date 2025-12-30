@@ -10,5 +10,15 @@ const firebaseConfig = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// Debug: Check if environment variables are loaded
+console.log("Firebase config:", {
+    apiKey: firebaseConfig.apiKey ? "✅ Set" : "❌ Missing",
+    authDomain: firebaseConfig.authDomain ? "✅ Set" : "❌ Missing", 
+    projectId: firebaseConfig.projectId ? "✅ Set" : "❌ Missing",
+    storageBucket: firebaseConfig.storageBucket ? "✅ Set" : "❌ Missing",
+    messagingSenderId: firebaseConfig.messagingSenderId ? "✅ Set" : "❌ Missing",
+    appId: firebaseConfig.appId ? "✅ Set" : "❌ Missing",
+});
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
