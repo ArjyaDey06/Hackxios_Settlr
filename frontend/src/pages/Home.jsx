@@ -12,37 +12,43 @@ function Home() {
       city: "Bengaluru",
       type: "2BHK",
       price: "₹18,000",
-      features: "No brokerage"
+      features: "No brokerage",
+      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80"
     },
     {
       city: "Coimbatore", 
       type: "3BHK",
       price: "₹12,000",
-      features: "Semi furnished"
+      features: "Semi furnished",
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80"
     },
     {
       city: "Indore",
       type: "1BHK", 
       price: "₹8,000",
-      features: "Near metro"
+      features: "Near metro",
+      image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80"
     },
     {
       city: "Nagpur",
       type: "2BHK",
       price: "₹10,000", 
-      features: "Parking available"
+      features: "Parking available",
+      image: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80"
     },
     {
       city: "Trivandrum",
       type: "3BHK",
       price: "₹15,000",
-      features: "Sea view"
+      features: "Sea view",
+      image: "https://images.unsplash.com/photo-1448630360428-65456885c650?auto=format&fit=crop&w=800&q=80"
     },
     {
       city: "Jaipur",
       type: "1BHK",
       price: "₹9,000",
-      features: "Gated community"
+      features: "Gated community",
+      image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
     }
   ];
 
@@ -198,7 +204,10 @@ function Home() {
                 {properties.map((property, index) => (
                   <div key={index} className="min-w-full">
                     <div className="bg-black rounded-2xl shadow-xl p-6 w-80">
-                      <div className="h-40 bg-gray-800 rounded-lg mb-4" />
+                      <div 
+                        className="h-40 rounded-lg mb-4 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${property.image})` }}
+                      />
                       <h3 className="font-semibold text-lg text-white">{property.type} • {property.city}</h3>
                       <p className="text-gray-300 text-sm mt-1">
                         {property.price} / month • {property.features}
